@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset=utf-8 />
+    <title>Location of members</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.mapbox.com/mapbox.js/v2.2.1/mapbox.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+    <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.2.0/leaflet-omnivore.min.js'></script>
+    <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="scripts/togeojson.js"></script>
+    <script src="scripts/geojson-utils.js"></script>
+    <link href='https://api.mapbox.com/mapbox.js/v2.2.1/mapbox.css' rel='stylesheet' />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id='map'></div>
+    <script type="application/javascript">
+        (function () {
+            L.mapbox.accessToken = 'pk.eyJ1IjoibW9oYW5yYWplbmRyYW4iLCJhIjoiNGE2ZDIzZWZjODZjM2Y0NmI2YTk0NTI0NzcyMmY5ZGQifQ.DgUhrOQAsAVrBNPfpgY-Xw';
+
+            var map = L.mapbox.map('map', 'mapbox.streets')
+                .setView([29.72, -95.22], 9);
+
+            var pointData = d3.csv("meetupdata-Aug-08-2015.csv", function (rawData) {
+                for (var i = 0; i < rawData.length; i++) {
+                    L.marker([rawData[i].lat, rawData[i].lon])
+                        .addTo(map)
+                        .bindPopup(rawData[i].topics);
+                }
+            });
+
+            console.log(pointData);
+
+            d3.xml("Texas Zip Code Shapes.kml", function (xml) {
+                function style(feature) {
+                    return {
+                        fillColor: '#330000',
+                        weight: 2,
+                        opacity: 1,
+                        color: 'white',
+                        dashArray: '3',
+                        fillOpacity: 0.7
+                    };
+                }
+
+                var geoData = toGeoJSON.kml(xml);
+                console.log(geoData);
+                L.geoJson(geoData, {
+                    style: style
+                }).addTo(map);
+            });
+
+            //        var runLayer = omnivore.kml('Texas Zip Code Shapes.kml')
+            //            .on('ready', function () {
+            //                map.fitBounds(runLayer.getBounds());
+            //            })
+            //            .addTo(map);
+        })();
+    </script>
+</body>
+
+</html>
